@@ -321,6 +321,7 @@
       </div>
 
       <div class="tabs">
+	    <button class="tab" onclick="showBreakfast()">Breakfast</button>
         <button class="tab active" onclick="showWeek(1)">Week 1</button>
         <button class="tab" onclick="showWeek(2)">Week 2</button>
         <button class="tab" onclick="showWeek(3)">Week 3</button>
@@ -701,6 +702,30 @@
             </div>
           </div>
         </div>
+		
+		
+		<!-- Breakfast -->
+			<div id="breakfast" class="week-content">
+			  <div class="week-grid">
+				<div class="meal-schedule">
+				  <h2 class="section-title">🍽 Breakfast Menu</h2>
+				  <div class="day-card">
+					<div class="day-info">
+					  <h3>Options</h3>
+					  <p>Oats + Banana • Veg Sandwich • Paneer Sandwich • Poha • Yogurt + Berries • Boiled Eggs • Smoothie</p>
+					</div>
+				  </div>
+				</div>
+
+				<div class="shopping-list">
+				  <h2 class="section-title">🛒 Breakfast Shopping</h2>
+				  <div id="breakfast-shopping"></div>
+				  <div class="progress-bar">
+					<div class="progress-fill" id="breakfast-shopping-progress"></div>
+				  </div>
+				</div>
+			  </div>
+			</div>
 
         <!-- Pantry Staples (Always Visible) -->
         <div class="pantry-section">
@@ -717,7 +742,20 @@
 
     <script>
       // Data structure for all items
+	  
+	  
       const weeklyShoppingData = {
+	  breakfast: [
+		  "Milk",
+		  "Bread",
+		  "Oats",
+		  "Banana",
+		  "Eggs",
+		  "Peanut butter",
+		  "Greek yogurt",
+		  "Berries",
+		  "Honey"
+		],
         week1: [
           "Spinach",
 		  "Tomato",
@@ -804,6 +842,9 @@
 		updateAllShortages();
         updateAllProgress();
       }
+	  
+	  
+	  
 
       // Tab switching
       function showWeek(weekNum) {
@@ -834,6 +875,15 @@
         document.getElementById("tools").classList.add("active");
         document.querySelectorAll(".tab")[3].classList.add("active");
       }
+	  
+	  
+	  function showBreakfast() {
+		  document.querySelectorAll(".week-content").forEach(c => c.classList.remove("active"));
+		  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+		  document.getElementById("breakfast").classList.add("active");
+		  document.querySelectorAll(".tab")[4].classList.add("active"); // 5th tab
+		}
+
 	  
 	  
 	   /* 1) ADD these helpers (or REPLACE your existing needsQty) */
@@ -981,57 +1031,62 @@
       }
 
       // Update all progress bars
-      function updateAllProgress() {
-        ["week1", "week2", "week3"].forEach((week) => {
-          updateProgress(week, "cooking");
-          updateProgress(week, "shopping");
-        });
-        updateProgress("pantry", "pantry");
-      }
+     function updateAllProgress() {
+	  ["week1","week2","week3"].forEach(week => {
+		updateProgress(week, "cooking");
+	  });
+	  Object.keys(weeklyShoppingData).forEach(key => {
+		updateProgress(key, "shopping"); // covers week1–3 + breakfast
+	  });
+	  updateProgress("pantry", "pantry");
+	}
 
       // Save progress to localStorage
-	 function saveProgress() {
-    const progress = {
-      cooking: {},
-      shopping: {},
-      pantry: [],
-      quantities: { week1:{}, week2:{}, week3:{} } // { [index]: {have, need} }
-    };
+// Saving: make shopping + quantity loops dynamic so Breakfast is persisted
+function saveProgress() {
+  const progress = {
+    cooking: {},
+    shopping: {},
+    pantry: [],
+    quantities: {}
+  };
 
-    // cooking
-    ["week1","week2","week3"].forEach((week) => {
-      progress.cooking[week] = {};
-      document.querySelectorAll(`#${week} input[type="checkbox"]`).forEach((cb) => {
-        progress.cooking[week][cb.id] = cb.checked;
-      });
+  // cooking (still only the 3 weeks)
+  ["week1","week2","week3"].forEach(week => {
+    progress.cooking[week] = {};
+    document.querySelectorAll(`#${week} input[type="checkbox"]`).forEach(cb => {
+      progress.cooking[week][cb.id] = cb.checked;
     });
+  });
 
-    // shopping toggles
-    ["week1","week2","week3"].forEach((week) => {
-      progress.shopping[week] = [];
-      document.querySelectorAll(`#${week}-shopping .toggle-switch`).forEach((tgl) => {
-        progress.shopping[week].push(tgl.classList.contains("active"));
-      });
+  // shopping toggles for all lists (weeks + breakfast)
+  Object.keys(weeklyShoppingData).forEach(week => {
+    progress.shopping[week] = [];
+    document.querySelectorAll(`#${week}-shopping .toggle-switch`).forEach(tgl => {
+      progress.shopping[week].push(tgl.classList.contains("active"));
     });
+  });
 
-    // pantry toggles
-    document.querySelectorAll("#pantry-items .toggle-switch").forEach((tgl) => {
-      progress.pantry.push(tgl.classList.contains("active"));
+  // pantry toggles
+  document.querySelectorAll("#pantry-items .toggle-switch").forEach(tgl => {
+    progress.pantry.push(tgl.classList.contains("active"));
+  });
+
+  // quantities for all lists that show qty fields
+  Object.keys(weeklyShoppingData).forEach(week => {
+    progress.quantities[week] = {};
+    document.querySelectorAll(`#${week}-shopping .qty-wrap`).forEach(wrap => {
+      const idx = wrap.getAttribute("data-index");
+      const have = wrap.querySelector(".have")?.value || "";
+      const need = wrap.querySelector(".need")?.value || "";
+      progress.quantities[week][idx] = { have, need };
     });
+  });
 
-    // quantities for Spinach/Tomato
-    ["week1","week2","week3"].forEach((week)=>{
-      document.querySelectorAll(`#${week}-shopping .qty-wrap`).forEach((wrap)=>{
-        const idx = wrap.getAttribute("data-index");
-        const have = wrap.querySelector(".have")?.value || "";
-        const need = wrap.querySelector(".need")?.value || "";
-        progress.quantities[week][idx] = { have, need };
-      });
-    });
+  localStorage.setItem("cookingPlannerProgress", JSON.stringify(progress));
+  updateAllProgress();
+}
 
-    localStorage.setItem("cookingPlannerProgress", JSON.stringify(progress));
-    updateAllProgress();
-  }
 
 
       // Load progress from localStorage
