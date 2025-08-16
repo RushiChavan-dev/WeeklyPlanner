@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cooking Planner - 3 Weeks</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #ff6b6b, #ffa500);
+        color: white;
+        text-align: center;
+        padding: 30px;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      .tabs {
+        display: flex;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+      }
+
+      .tab {
+        flex: 1;
+        padding: 15px;
+        text-align: center;
+        background: none;
+        border: none;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #6c757d;
+      }
+
+      .tab.active {
+        background: white;
+        color: #495057;
+        border-bottom: 3px solid #007bff;
+      }
+
+      .tab:hover {
+        background: #e9ecef;
+      }
+
+      .content {
+        padding: 30px;
+      }
+
+      .week-content {
+        display: none;
+      }
+
+      .week-content.active {
+        display: block;
+      }
+
+      .week-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+      }
+
+      .meal-schedule,
+      .shopping-list {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 25px;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        color: #343a40;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #dee2e6;
+        padding-bottom: 10px;
+      }
+
+      .day-card {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid #007bff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .day-card.saturday {
+        border-left-color: #ff6b6b;
+      }
+
+      .day-card.sunday {
+        border-left-color: #28a745;
+        background: #f8fff8;
+      }
+
+      .day-info h3 {
+        color: #495057;
+        margin-bottom: 5px;
+      }
+
+      .day-info p {
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+
+      .cooked-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .cooked-checkbox input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+      }
+
+      .shopping-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .shopping-item:last-child {
+        border-bottom: none;
+      }
+
+      .shopping-item.checked {
+        opacity: 0.6;
+        text-decoration: line-through;
+      }
+
+      .toggle-switch {
+        position: relative;
+        width: 50px;
+        height: 25px;
+        background: #ccc;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .toggle-switch.active {
+        background: #28a745;
+      }
+
+      .toggle-switch::after {
+        content: "";
+        position: absolute;
+        width: 21px;
+        height: 21px;
+        background: white;
+        border-radius: 50%;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.3s;
+      }
+
+      .toggle-switch.active::after {
+        transform: translateX(25px);
+      }
+
+      .pantry-section {
+        background: #fff3cd;
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 30px;
+      }
+
+      .pantry-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .tools-section {
+        background: #d1ecf1;
+        border-radius: 10px;
+        padding: 25px;
+        text-align: center;
+      }
+
+      .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-reset {
+        background: #dc3545;
+        color: white;
+      }
+
+      .btn-reset:hover {
+        background: #c82333;
+      }
+
+      .btn-export {
+        background: #28a745;
+        color: white;
+      }
+
+      .btn-export:hover {
+        background: #218838;
+      }
+
+      .btn-import {
+        background: #007bff;
+        color: white;
+      }
+
+      .btn-import:hover {
+        background: #0056b3;
+      }
+
+      .file-input {
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .week-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .tabs {
+          flex-direction: column;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .content {
+          padding: 20px;
+        }
+
+        .pantry-grid,
+        .tools-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        margin-top: 15px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        transition: width 0.3s ease;
+      }
+	  
+	 
+	  .qty-wrap{display:flex;align-items:center;gap:8px;margin-right:12px}
+	  .qty-label{font-size:.8rem;color:#6c757d}
+	  .qty-input{width:64px;padding:6px 8px;border:1px solid #ced4da;border-radius:6px}
+	  .qty-diff{font-size:.8rem;padding:3px 8px;border-radius:999px}
+	  .qty-diff.ok{background:#e6f4ea;color:#1e7e34}
+	  .qty-diff.short{background:#fdecea;color:#a71d2a}
+
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🍳 Cooking Planner</h1>
+        <p>3-Week Meal Planning & Shopping Assistant</p>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="showWeek(1)">Week 1</button>
+        <button class="tab" onclick="showWeek(2)">Week 2</button>
+        <button class="tab" onclick="showWeek(3)">Week 3</button>
+        <button class="tab" onclick="showTools()">Tools</button>
+      </div>
+
+      <div class="content">
+        <!-- Week 1 -->
+        <div id="week1" class="week-content active">
+          <div class="week-grid">
+            <div class="meal-schedule">
+              <h2 class="section-title">📅 Week 1 Schedule</h2>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Monday</h3>
+                  <p>Dal Palak + Rice</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week1-mon"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week1-mon">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Tuesday</h3>
+                  <p>Paneer Bhurji + Roti</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week1-tue"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week1-tue">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Wednesday</h3>
+                  <p>Soybean Curry + Rice</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week1-wed"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week1-wed">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Thursday</h3>
+                  <p>Paneer Sandwich</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week1-thu"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week1-thu">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Friday</h3>
+                  <p>Black-eyed Dal + Rice</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week1-fri"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week1-fri">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card saturday">
+                <div class="day-info">
+                  <h3>Saturday</h3>
+                  <p>Vegetable Biryani • Make Paneer</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week1-sat"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week1-sat">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card sunday">
+                <div class="day-info">
+                  <h3>Sunday</h3>
+                  <p>Outside (No cooking)</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <span>🎉 Rest Day</span>
+                </div>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="week1-progress"></div>
+              </div>
+            </div>
+
+            <div class="shopping-list">
+              <h2 class="section-title">🛒 Week 1 Shopping</h2>
+              <div id="week1-shopping">
+                <!-- Shopping items will be populated by JavaScript -->
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="week1-shopping-progress"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Week 2 -->
+        <div id="week2" class="week-content">
+          <div class="week-grid">
+            <div class="meal-schedule">
+              <h2 class="section-title">📅 Week 2 Schedule</h2>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Monday</h3>
+                  <p>Palak Paneer + Rice</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week2-mon"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week2-mon">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Tuesday</h3>
+                  <p>Soya Chunk Sandwich</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week2-tue"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week2-tue">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Wednesday</h3>
+                  <p>Yellow Dal with Tamarind + Rice</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week2-wed"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week2-wed">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Thursday</h3>
+                  <p>Tofu Noodles with Bell Pepper & Cabbage</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week2-thu"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week2-thu">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Friday</h3>
+                  <p>Paneer Bhurji + Roti</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week2-fri"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week2-fri">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card saturday">
+                <div class="day-info">
+                  <h3>Saturday</h3>
+                  <p>Mushroom Sabji + Rice • Make Paneer</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week2-sat"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week2-sat">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card sunday">
+                <div class="day-info">
+                  <h3>Sunday</h3>
+                  <p>Outside (No cooking)</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <span>🎉 Rest Day</span>
+                </div>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="week2-progress"></div>
+              </div>
+            </div>
+
+            <div class="shopping-list">
+              <h2 class="section-title">🛒 Week 2 Shopping</h2>
+              <div id="week2-shopping">
+                <!-- Shopping items will be populated by JavaScript -->
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="week2-shopping-progress"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Week 3 -->
+        <div id="week3" class="week-content">
+          <div class="week-grid">
+            <div class="meal-schedule">
+              <h2 class="section-title">📅 Week 3 Schedule</h2>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Monday</h3>
+                  <p>Rajma + Rice</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week3-mon"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week3-mon">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Tuesday</h3>
+                  <p>Chole + Rice</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week3-tue"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week3-tue">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Wednesday</h3>
+                  <p>Paneer Sandwich</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week3-wed"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week3-wed">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Thursday</h3>
+                  <p>Dal Palak + Rice</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week3-thu"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week3-thu">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card">
+                <div class="day-info">
+                  <h3>Friday</h3>
+                  <p>Soybean Curry + Rice</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week3-fri"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week3-fri">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card saturday">
+                <div class="day-info">
+                  <h3>Saturday</h3>
+                  <p>Palak Paneer + Rice • Make Paneer</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <input
+                    type="checkbox"
+                    id="week3-sat"
+                    onchange="saveProgress()"
+                  />
+                  <label for="week3-sat">Cooked?</label>
+                </div>
+              </div>
+              <div class="day-card sunday">
+                <div class="day-info">
+                  <h3>Sunday</h3>
+                  <p>Outside (No cooking)</p>
+                </div>
+                <div class="cooked-checkbox">
+                  <span>🎉 Rest Day</span>
+                </div>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="week3-progress"></div>
+              </div>
+            </div>
+
+            <div class="shopping-list">
+              <h2 class="section-title">🛒 Week 3 Shopping</h2>
+              <div id="week3-shopping">
+                <!-- Shopping items will be populated by JavaScript -->
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="week3-shopping-progress"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tools -->
+        <div id="tools" class="week-content">
+          <div class="tools-section">
+            <h2 class="section-title">🔧 Tools & Settings</h2>
+            <p>Manage your cooking planner data and progress</p>
+            <div class="tools-grid">
+              <button class="btn btn-reset" onclick="resetAll()">
+                🗑️ Reset Everything
+              </button>
+              <button class="btn btn-export" onclick="exportProgress()">
+                📤 Export Progress
+              </button>
+              <button
+                class="btn btn-import"
+                onclick="document.getElementById('import-file').click()"
+              >
+                📥 Import Progress
+              </button>
+              <input
+                type="file"
+                id="import-file"
+                class="file-input"
+                accept=".json"
+                onchange="importProgress(event)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Pantry Staples (Always Visible) -->
+        <div class="pantry-section">
+          <h2 class="section-title">🏪 Pantry Staples Checklist</h2>
+          <div class="pantry-grid" id="pantry-items">
+            <!-- Pantry items will be populated by JavaScript -->
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="pantry-progress"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Data structure for all items
+      const weeklyShoppingData = {
+        week1: [
+          "Spinach",
+		  "Tomato",
+          "Bell pepper",
+          "Carrot (optional)",
+          "Mint leaves",
+          "Milk (to make paneer)",
+		  "Bread",
+          "Onion",
+          "Garlic",
+          "Ginger",
+          "Green chili",
+          "Cauliflower (for Biryani)",
+          "Coriander leaves",
+          "Soy chunks",
+          "Basmati rice",
+          "Yogurt (optional)",
+        ],
+		week2: [
+			"Spinach",
+			"Tomato",
+			"Bell pepper",
+			"Milk (paneer)",
+			"Tofu",
+			"Bread",
+			"Onion",
+			"Garlic",
+			"Ginger",
+			"Green chili",
+			"Cabbage",
+			"Spring onion (optional)",
+			"Mushrooms",
+			"Tamarind",
+			"Rice noodles",
+			"Coriander leaves",
+			"Rice"
+		],
+		week3: [
+		"Spinach",
+		"Tomato",
+		"Bell pepper",
+		"Milk (paneer)",
+		"Bread",
+		"Onion",
+		"Garlic",
+		"Ginger",
+		"Green chili",
+		"Coriander leaves",
+		"Rice"
+		],
+      };
+
+      const pantryStaples = [
+        "Cumin seeds",
+        "Turmeric",
+        "Coriander powder",
+        "Red chili powder",
+        "Garam masala",
+        "Kasuri methi",
+        "Mustard seeds",
+        "Biryani masala",
+        "Cloves",
+        "Cinnamon",
+        "Cardamom",
+        "Bay leaf",
+        "Salt",
+        "Black pepper",
+        "Oil/Ghee",
+        "Yellow dal",
+        "Black-eyed beans",
+        "Rajma",
+        "Chole",
+        "Rice",
+        "Basmati rice",
+      ];
+
+      let currentWeek = 1;
+
+      // Initialize the app
+      function init() {
+        populateShoppingLists();
+        populatePantryStaples();
+        loadProgress();
+		updateAllShortages();
+        updateAllProgress();
+      }
+
+      // Tab switching
+      function showWeek(weekNum) {
+        // Hide all content
+        document.querySelectorAll(".week-content").forEach((content) => {
+          content.classList.remove("active");
+        });
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+
+        // Show selected content
+        document.getElementById(`week${weekNum}`).classList.add("active");
+        document.querySelectorAll(".tab")[weekNum - 1].classList.add("active");
+        currentWeek = weekNum;
+      }
+
+      function showTools() {
+        // Hide all content
+        document.querySelectorAll(".week-content").forEach((content) => {
+          content.classList.remove("active");
+        });
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+
+        // Show tools
+        document.getElementById("tools").classList.add("active");
+        document.querySelectorAll(".tab")[3].classList.add("active");
+      }
+	  
+	  
+	   /* 1) ADD these helpers (or REPLACE your existing needsQty) */
+		  const QTY_ITEMS = new Set([
+			"spinach","tomato","bell pepper","tofu","milk","carrot","rice noodles","mint leaves"
+		  ]);
+	  function norm(n){
+		return String(n)
+		  .toLowerCase()
+		  .replace(/\(.*?\)/g,"")       // drop parentheticals
+		  .replace(/[^\w\s]/g,"")       // drop punctuation
+		  .replace(/\s+/g," ")          // collapse spaces
+		  .trim();
+	  }
+	function needsQty(name){ return QTY_ITEMS.has(norm(name)); }
+
+
+      // Populate shopping lists
+       function populateShoppingLists() {
+			Object.keys(weeklyShoppingData).forEach((week) => {
+			  const container = document.getElementById(`${week}-shopping`);
+			  container.innerHTML = "";
+
+			  weeklyShoppingData[week].forEach((item, index) => {
+				const label = typeof item === "string" ? item : item?.name ?? "";
+				const itemDiv = document.createElement("div");
+				itemDiv.className = "shopping-item";
+				itemDiv.innerHTML = `
+				  ${needsQty(label) ? `
+					<div class="qty-wrap" data-week="${week}" data-index="${index}">
+					  <span class="qty-label">Have</span>
+					  <input type="number" min="0" step="1" class="qty-input have" oninput="updateShortage(this); saveProgress()">
+					  <span class="qty-label">Need</span>
+					  <input type="number" min="0" step="1" class="qty-input need" oninput="updateShortage(this); saveProgress()">
+					  <span class="qty-diff"></span>
+					</div>
+				  ` : ``}
+				  <span>${label}</span>
+				  <div class="toggle-switch" onclick="toggleShoppingItem('${week}', ${index})"></div>
+				`;
+				container.appendChild(itemDiv);
+			  });
+			});
+		  }
+
+
+		 // /* 4) ADD shortage calculator */
+		  function updateShortage(el){
+			const wrap = el.closest(".qty-wrap");
+			if(!wrap) return;
+			const have = Number(wrap.querySelector(".have")?.value || 0);
+			const need = Number(wrap.querySelector(".need")?.value || 0);
+			const diffEl = wrap.querySelector(".qty-diff");
+			const shortage = Math.max(0, need - have);
+
+			diffEl.classList.remove("ok","short");
+			if(need===0 && have===0){
+			  diffEl.textContent = "";
+			} else if(shortage>0){
+			  diffEl.textContent = `short ${shortage}`;
+			  diffEl.classList.add("short");
+			} else {
+			  diffEl.textContent = "ok";
+			  diffEl.classList.add("ok");
+			}
+		  }
+		  function updateAllShortages(){
+			document.querySelectorAll(".qty-wrap .need,.qty-wrap .have").forEach(inp=>updateShortage(inp));
+		  }
+
+
+      // Populate pantry staples
+      function populatePantryStaples() {
+        const container = document.getElementById("pantry-items");
+        container.innerHTML = "";
+
+        pantryStaples.forEach((item, index) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className = "shopping-item";
+          itemDiv.innerHTML = `
+                    <span>${item}</span>
+                    <div class="toggle-switch" onclick="togglePantryItem(${index})"></div>
+                `;
+          container.appendChild(itemDiv);
+        });
+      }
+
+      // Toggle shopping item
+      function toggleShoppingItem(week, index) {
+        const toggle = document.querySelectorAll(
+          `#${week}-shopping .toggle-switch`
+        )[index];
+        const item = toggle.parentElement;
+
+        toggle.classList.toggle("active");
+        item.classList.toggle("checked");
+
+        saveProgress();
+        updateProgress(week, "shopping");
+      }
+
+      // Toggle pantry item
+      function togglePantryItem(index) {
+        const toggle = document.querySelectorAll(
+          "#pantry-items .toggle-switch"
+        )[index];
+        const item = toggle.parentElement;
+
+        toggle.classList.toggle("active");
+        item.classList.toggle("checked");
+
+        saveProgress();
+        updateProgress("pantry", "pantry");
+      }
+
+      // Update progress bars
+      function updateProgress(week, type) {
+        let progressElement, items, checkedItems;
+
+        if (type === "cooking") {
+          progressElement = document.getElementById(`${week}-progress`);
+          items = document.querySelectorAll(`#${week} input[type="checkbox"]`);
+          checkedItems = document.querySelectorAll(
+            `#${week} input[type="checkbox"]:checked`
+          );
+        } else if (type === "shopping") {
+          progressElement = document.getElementById(
+            `${week}-shopping-progress`
+          );
+          items = document.querySelectorAll(`#${week}-shopping .toggle-switch`);
+          checkedItems = document.querySelectorAll(
+            `#${week}-shopping .toggle-switch.active`
+          );
+        } else if (type === "pantry") {
+          progressElement = document.getElementById("pantry-progress");
+          items = document.querySelectorAll("#pantry-items .toggle-switch");
+          checkedItems = document.querySelectorAll(
+            "#pantry-items .toggle-switch.active"
+          );
+        }
+
+        const percentage =
+          items.length > 0 ? (checkedItems.length / items.length) * 100 : 0;
+        progressElement.style.width = `${percentage}%`;
+      }
+
+      // Update all progress bars
+      function updateAllProgress() {
+        ["week1", "week2", "week3"].forEach((week) => {
+          updateProgress(week, "cooking");
+          updateProgress(week, "shopping");
+        });
+        updateProgress("pantry", "pantry");
+      }
+
+      // Save progress to localStorage
+	 function saveProgress() {
+    const progress = {
+      cooking: {},
+      shopping: {},
+      pantry: [],
+      quantities: { week1:{}, week2:{}, week3:{} } // { [index]: {have, need} }
+    };
+
+    // cooking
+    ["week1","week2","week3"].forEach((week) => {
+      progress.cooking[week] = {};
+      document.querySelectorAll(`#${week} input[type="checkbox"]`).forEach((cb) => {
+        progress.cooking[week][cb.id] = cb.checked;
+      });
+    });
+
+    // shopping toggles
+    ["week1","week2","week3"].forEach((week) => {
+      progress.shopping[week] = [];
+      document.querySelectorAll(`#${week}-shopping .toggle-switch`).forEach((tgl) => {
+        progress.shopping[week].push(tgl.classList.contains("active"));
+      });
+    });
+
+    // pantry toggles
+    document.querySelectorAll("#pantry-items .toggle-switch").forEach((tgl) => {
+      progress.pantry.push(tgl.classList.contains("active"));
+    });
+
+    // quantities for Spinach/Tomato
+    ["week1","week2","week3"].forEach((week)=>{
+      document.querySelectorAll(`#${week}-shopping .qty-wrap`).forEach((wrap)=>{
+        const idx = wrap.getAttribute("data-index");
+        const have = wrap.querySelector(".have")?.value || "";
+        const need = wrap.querySelector(".need")?.value || "";
+        progress.quantities[week][idx] = { have, need };
+      });
+    });
+
+    localStorage.setItem("cookingPlannerProgress", JSON.stringify(progress));
+    updateAllProgress();
+  }
+
+
+      // Load progress from localStorage
+   function loadProgress() {
+    const saved = localStorage.getItem("cookingPlannerProgress");
+    if (!saved) return;
+    const progress = JSON.parse(saved);
+
+    // cooking
+    if (progress.cooking) {
+      Object.keys(progress.cooking).forEach((week) => {
+        Object.keys(progress.cooking[week]).forEach((checkboxId) => {
+          const cb = document.getElementById(checkboxId);
+          if (cb) cb.checked = progress.cooking[week][checkboxId];
+        });
+      });
+    }
+
+    // shopping toggles
+    if (progress.shopping) {
+      Object.keys(progress.shopping).forEach((week) => {
+        const toggles = document.querySelectorAll(`#${week}-shopping .toggle-switch`);
+        progress.shopping[week].forEach((isActive, index) => {
+          if (toggles[index] && isActive) {
+            toggles[index].classList.add("active");
+            toggles[index].parentElement.classList.add("checked");
+          }
+        });
+      });
+    }
+
+    // pantry toggles
+    if (progress.pantry) {
+      const pantryToggles = document.querySelectorAll("#pantry-items .toggle-switch");
+      progress.pantry.forEach((isActive, index) => {
+        if (pantryToggles[index] && isActive) {
+          pantryToggles[index].classList.add("active");
+          pantryToggles[index].parentElement.classList.add("checked");
+        }
+      });
+    }
+
+    // quantities
+    if (progress.quantities) {
+      Object.keys(progress.quantities).forEach((week)=>{
+        Object.keys(progress.quantities[week]).forEach((idx)=>{
+          const wrap = document.querySelector(`#${week}-shopping .qty-wrap[data-index="${idx}"]`);
+          if (!wrap) return;
+          const q = progress.quantities[week][idx] || {};
+          const have = wrap.querySelector(".have");
+          const need = wrap.querySelector(".need");
+          if (have) have.value = q.have ?? "";
+          if (need) need.value = q.need ?? "";
+        });
+      });
+    }
+
+    updateAllShortages();
+  }
+
+
+      // Reset all progress
+      function resetAll() {
+        if (
+          confirm(
+            "Are you sure you want to reset all progress? This cannot be undone."
+          )
+        ) {
+          localStorage.removeItem("cookingPlannerProgress");
+
+          // Reset all checkboxes
+          document
+            .querySelectorAll('input[type="checkbox"]')
+            .forEach((checkbox) => {
+              checkbox.checked = false;
+            });
+			
+		  // UPDATE resetAll(): add clearing of qty inputs just before updateAllProgress() */
+
+		  document.querySelectorAll(".qty-input").forEach(i=>{ i.value=""; });
+
+		  document.querySelectorAll(".qty-diff").forEach(b=>{ b.textContent=""; b.classList.remove("ok","short"); });
+
+          // Reset all toggles
+          document.querySelectorAll(".toggle-switch").forEach((toggle) => {
+            toggle.classList.remove("active");
+            toggle.parentElement.classList.remove("checked");
+          });
+
+          updateAllProgress();
+          alert("All progress has been reset!");
+        }
+      }
+
+      // Export progress
+      function exportProgress() {
+        const progress = localStorage.getItem("cookingPlannerProgress");
+        if (!progress) {
+          alert("No progress to export!");
+          return;
+        }
+
+        const dataStr =
+          "data:text/json;charset=utf-8," + encodeURIComponent(progress);
+        const downloadAnchorNode = document.createElement("a");
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute(
+          "download",
+          "cooking-planner-progress.json"
+        );
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+      }
+
+      // Import progress
+      function importProgress(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            const importedData = JSON.parse(e.target.result);
+            localStorage.setItem(
+              "cookingPlannerProgress",
+              JSON.stringify(importedData)
+            );
+
+            // Reset current state
+            document
+              .querySelectorAll('input[type="checkbox"]')
+              .forEach((checkbox) => {
+                checkbox.checked = false;
+              });
+            document.querySelectorAll(".toggle-switch").forEach((toggle) => {
+              toggle.classList.remove("active");
+              toggle.parentElement.classList.remove("checked");
+            });
+
+            // Load imported progress
+            loadProgress();
+            updateAllProgress();
+
+            alert("Progress imported successfully!");
+          } catch (error) {
+            alert(
+              "Error importing file. Please make sure it's a valid JSON file."
+            );
+          }
+        };
+        reader.readAsText(file);
+
+        // Reset file input
+        event.target.value = "";
+      }
+
+      // Initialize the app when page loads
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
